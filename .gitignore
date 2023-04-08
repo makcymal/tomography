@@ -1,3 +1,5 @@
-*.FOR
+/.idea/
+/venv/
+/cmake-build-debug/
 *.env
 *.dat

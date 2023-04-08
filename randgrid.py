@@ -1,10 +1,13 @@
+import os
 from random import randint
+from dotenv import load_dotenv
 
-with open("pts_dirs.dat") as file:
-    n_pts, n_dirs  = map(int, file.read().split())
+load_dotenv("config.env")
+pts = int(os.getenv("POINTS"))
+dirs = int(os.getenv("DIRECTIONS"))
 
 with open("grid.dat", "w") as file:
-    for dir in range(n_dirs):
-        for pt in range(-n_pts, n_pts + 1):
+    for _ in range(dirs):
+        for _ in range(2 * pts + 1):
             file.write(str(randint(10, 99)) + ' ')
         file.write('\n')

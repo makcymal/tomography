@@ -10,10 +10,11 @@
 
 
       open(2, file='grid.dat')
-      do 10 dir = 1, dirs
-        do 10 pt = -pts, pts
+      do dir = 1, dirs
+        do pt = -pts, pts
           read(2, *) grid(pt, dir)
- 10   continue
+        end do
+      end do
       close(2)
 
 
@@ -29,21 +30,26 @@
       max = 0.0
       open(4, file='f.dat')
       
-      do 20 i = -nx, nx
+      do i = -nx, nx
         y = -1.0 * i / nx
-        do 20 j = -ny, ny
+        do j = -ny, ny
           x = 1.0 * j / ny
-  
-          if (x*x + y*y .ge. 1) f = 0.0
-          else call backprojection(f, x, y, conv, pts, dirs)
+
+          if (x*x + y*y >= 1) then
+            f = 0.0
+          else
+            call backprojection(f, x, y, conv, pts, dirs)
           endif
-  
-          if (f .le. 0) f = 0.0
-          elseif (f .ge. max) max = f
+
+          if (f <= 0) then
+            f = 0.0
+          elseif (f >= max) then
+            max = f
           endif
-  
+
           write(4, *) f
- 20     continue
+        end do
+      end do
 
       close(4)
 
@@ -64,42 +70,41 @@
       real grid(-80:80, 200), conv(-80:80, 200), sum
       integer pts, dirs
 
-*     Для каждой точки pt из [-pts, pts], каждого направления dir из [1, dirs]
-*     вычисляются свертки conv(pt, dir)
+*     Для каждой точки pt из [-pts, pts], каждого направления dir из [1, dirs] вычисляются свертки conv(pt, dir)
 
-      do 20 pt = -pts, pts
-        do 20 dir = 1, dirs
+      do pt = -pts, pts
+        do dir = 1, dirs
           sum = 0.0
-          do 10 pti = -pts, pts
+          do pti = -pts, pts
             sum = sum + grid(pti, dir) / (1.0 - 4.0 * (pt - pti) * (pt - pti))
- 10       continue
+          end do
           conv(pt, dir) = sum
- 20     continue
+        end do
+      end do
 
       return
       end
 
 
 
-
       subroutine backprojection(f, x, y, conv, pts, dirs)
 
-      real f, x, y, conv(-80:80, 200), sum, phi, pi, s, fs, u, 
+      real f, x, y, conv(-80:80, 200), sum, phi, pi, s, rs, s_mantissa
       integer pts, dirs, is
       pi = 3.14159263
 
 *     В каждой точке восстановления вычисляется дискретная обратная проекция
 
       sum = 0.0
-      do 10 dir = 1, dirs
+      do dir = 1, dirs
 *       e.g. phi = 0, 0.1pi, 0.2pi, ..., 0.9pi if dirs = 10
         phi = pi * (dir - 1.0) / dirs
         s = x * cos(phi) + y * sin(phi)
-        fs = s * pts
+        rs = s * pts
         is = s * pts
-        u = abs(fs - is)
-        sum = sum + (1.0 - u) * conv(is, dir) + u * conv(is + 1, dir)
- 10   continue
+        s_mantissa = abs(rs - is)
+        sum = sum + (1.0 - s_mantissa) * conv(is, dir) + s_mantissa * conv(is + 1, dir)
+      end do
 
       f = 2.0 * pts * sum / (pi * dirs)
 
