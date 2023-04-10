@@ -1,8 +1,11 @@
+#pragma GCC optimize("O3")
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <cmath>
+
 using namespace std;
 
 #define CONFIG_FILE "config.env"
@@ -15,18 +18,20 @@ typedef vector<vector<double>> Matrix;
 class Config {
 public:
     int pts, dirs, nx, ny;
+
     Config();
 };
 
 
 void convolution(Matrix &, Matrix &, Config &);
+
 void backprojection(double &, double &, double &, Matrix &, Config &);
 
 
 int main() {
     auto config = Config();
     Matrix grid(2 * config.pts + 1, vector<double>(config.dirs)),
-           conv(2 * config.pts + 1, vector<double>(config.dirs));
+            conv(2 * config.pts + 1, vector<double>(config.dirs));
 
     ifstream grid_buff;
     grid_buff.open(GRID_FILE);
@@ -47,11 +52,11 @@ int main() {
     backproj_buff.open(BACKPROJ_FILE);
 
     for (auto i = -config.nx; i <= config.nx; ++i) {
-        double y = -(double)i / config.nx;
+        double y = -(double) i / config.nx;
         for (auto j = -config.ny; j <= config.ny; ++j) {
-            double x = (double)j / config.ny;
+            double x = (double) j / config.ny;
 
-            if (x*x + y*y >= 1) backproj = 0;
+            if (x * x + y * y >= 1) backproj = 0;
             else backprojection(backproj, x, y, conv, config);
 
             if (backproj <= 0) backproj = 0;
@@ -110,7 +115,9 @@ void backprojection(double &backproj, double &x, double &y, Matrix &conv, Config
         double rs = s * config.pts;
         int is = floor(s * config.pts);
         double s_mantissa = abs(rs - is);
-        sum += (1 - s_mantissa) * conv[is][dir] + s_mantissa * conv[is + 1][dir];
+
+        sum += (1 - s_mantissa) * conv[config.pts + is][dir] +
+               s_mantissa * conv[config.pts + is + 1][dir];
     }
 
     backproj = 2 * config.pts * sum / (PI * config.dirs);
