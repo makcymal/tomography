@@ -9,6 +9,9 @@ using namespace std;
 #define EPSILON std::numeric_limits<double>::epsilon()
 
 
+inline bool dbl_eq(double, double);
+
+
 // Точка на координатной плоскости.
 class Pnt {
 public:
@@ -63,16 +66,25 @@ public:
     explicit Polygon(Pnt *);
 
     [[nodiscard]] bool contains(Pnt &) const;
+
+    [[nodiscard]] vector<Pnt> collide(Ray &ray);
 };
 
 int main() {
-    Ellipse ellipse = {Pnt{5, 0}, 3, 2, PI / 2};
-    ellipse.formula();
-    Ray ray = {Pnt{3.005, 3}, 1.5 * PI};
-    auto collisions = ellipse.collide(ray);
-    for (auto pnt: collisions) {
-        pnt.dbg();
+    Pnt vertices[] = {{-2, 3}, {1, 1}, {-1, -3}};
+    auto polygon = Polygon(vertices);
+
+    Pnt inception = {-2, -1};
+    Ray ray = {inception, PI / 4};
+
+    for (auto collision: polygon.collide(ray)) {
+        collision.dbg();
     }
+}
+
+
+inline bool dbl_eq(double lhs, double rhs) {
+    return abs(lhs - rhs) < EPSILON;
 }
 
 
@@ -146,15 +158,14 @@ vector<Pnt> Ellipse::collide(Ray &ray) const {
     auto collisions = vector<Pnt>();
 
     // если A == 0 с поправкой на погрешности
-    if (-EPSILON < A && A < EPSILON) {
-        cout << "unusual ellipse against ray collision:\n";
-        this->formula();
-        cout << "ray: x: " << ray.inception.x <<
-             " y: " << ray.inception.y <<
-             " direction: " << ray.direction << endl;
-
+    if (dbl_eq(A, 0)) {
         // если B == 0 с поправкой на погрешности
-        if (-EPSILON < B && B < EPSILON) {
+        if (dbl_eq(B, 0)) {
+            cout << "unusual ellipse against ray collision:\n";
+            this->formula();
+            cout << "ray: x: " << ray.inception.x <<
+                 " y: " << ray.inception.y <<
+                 " direction: " << ray.direction << endl;
             return collisions;
         }
 
@@ -197,4 +208,40 @@ bool Polygon::contains(Pnt &pnt) const {
     Vec v1p = pnt - vertices[1];
 
     return (v10.x * v1p.y - v1p.x * v10.y) * (v12.x * v1p.y - v1p.x * v12.y) <= 0;
+}
+
+[[nodiscard]]
+vector<Pnt> Polygon::collide(Ray &ray) {
+    vector<Pnt> collisions;
+    int last_idx = -1;
+    double prev_t = -1;
+
+    for (auto i = 0; i < 3; ++i) {
+        // Если две точки столкновения уже найдены
+        if (collisions.size() == 2) return collisions;
+
+        Pnt &lend = vertices[i % 3];
+        Pnt &rend = vertices[(i + 1) % 3];
+
+        // Пусть искомая точка: lend * t + rend * (1 - t) = ray.inception + l * (cd, sd)
+        // Определитель матрицы системы на t, l
+        double det = ray.sd * (rend.x - lend.x) + ray.cd * (lend.y - rend.y);
+        if (dbl_eq(det, 0)) {
+            prev_t = -1;
+            continue;
+        }
+
+        double t = (ray.sd * (rend.x - ray.inception.x) + ray.cd * (ray.inception.y - rend.y)) / det;
+        double l = ((rend.y - lend.y) * ray.inception.x + (lend.x - rend.x) * ray.inception.y +
+                    lend.y * rend.x - lend.x * rend.y) / det;
+        if (t < 0 || 1 < t || dbl_eq(prev_t + t, 1) || l < 0) {
+            prev_t = -1;
+            continue;
+        }
+
+        collisions.emplace_back(lend.x * t + rend.x * (1 - t), lend.y * t + rend.y * (1 - t));
+        prev_t = t;
+    }
+
+    return collisions;
 }
