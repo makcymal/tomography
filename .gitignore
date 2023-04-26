@@ -3,3 +3,7 @@
 /cmake-build-debug/
 *.env
 *.dat
+
+inc/stb_image_write.h
+/img/
+*.jpg

@@ -89,7 +89,7 @@
 
       subroutine backprojection(f, x, y, conv, pts, dirs)
 
-      real f, x, y, conv(-80:80, 200), sum, phi, pi, sr, rs, s_mantissa
+      real f, x, y, conv(-80:80, 200), sum, phi, pi, rotsin, rs, s_mantissa
       integer pts, dirs, is
       pi = 3.14159263
 
@@ -99,9 +99,9 @@
       do dir = 1, dirs
 *       e.g. phi = 0, 0.1pi, 0.2pi, ..., 0.9pi if dirs = 10
         phi = pi * (dir - 1.0) / dirs
-        sr = x * cos(phi) + y * sin(phi)
-        rs = sr * pts
-        is = sr * pts
+        rotsin = x * cos(phi) + y * sin(phi)
+        rs = rotsin * pts
+        is = rotsin * pts
         s_mantissa = abs(rs - is)
         sum = sum + (1.0 - s_mantissa) * conv(is, dir) + s_mantissa * conv(is + 1, dir)
       end do

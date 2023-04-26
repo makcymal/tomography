@@ -3,6 +3,14 @@ project(tomography)
 
 set(CMAKE_CXX_STANDARD 17)
 
-#add_executable(tomography conv_backproj.cpp)
-add_executable(tomography radon.cpp)
-#add_executable(tomography radon_inverse.cpp)
+add_executable(tomography
+    src/main.cpp
+    src/geom.cpp
+    src/util.cpp
+    src/algo.cpp
+)
+
+target_include_directories(tomography
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/inc
+)
