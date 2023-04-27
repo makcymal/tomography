@@ -6,4 +6,4 @@
 
 void convolution(Matrix &, Matrix &, Config &);
 
-void backprojection(double &, double &, double &, Matrix &, Config &);
+float backprojection(double &backproj, double &x, double &y, Matrix &conv, Config &config);

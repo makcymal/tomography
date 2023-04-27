@@ -14,4 +14,4 @@
 #define FLT_EQ(lhs, rhs) (std::abs(lhs - rhs) < EPSILON)
 #define FLT_GT(lhs, rhs) (std::abs(lhs - rhs) >= EPSILON && lhs > rhs)
 
-#define Matrix vector<vector<double>>
+#define Matrix vector<vector<float>>

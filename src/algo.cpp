@@ -19,11 +19,11 @@ void convolution(Matrix &grid, Matrix &conv, Config &config) {
     }
 }
 
-void backprojection(double &backproj, double &x, double &y, Matrix &conv, Config &config) {
+float backprojection(double &backproj, double &x, double &y, Matrix &conv, Config &config) {
     double sum = 0;
 
     for (auto dir = 0; dir < config.dirs; ++dir) {
-        double phi = PI * (dir - 1) / config.dirs;
+        double phi = PI * dir / config.dirs;
         double s = x * cos(phi) + y * sin(phi);
         double rs = s * config.pts;
         int is = floor(s * config.pts);
@@ -33,6 +33,6 @@ void backprojection(double &backproj, double &x, double &y, Matrix &conv, Config
                s_mantissa * conv[config.pts + is + 1][dir];
     }
 
-    backproj = 2 * config.pts * sum / (PI * config.dirs);
+    return 2 * config.pts * sum / (PI * config.dirs);
 }
 

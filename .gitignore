@@ -7,3 +7,5 @@
 inc/stb_image_write.h
 /img/
 *.jpg
+
+/msc/

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <array>
 #include <cmath>
+#include <cassert>
 
 using namespace std;
 
@@ -191,7 +192,7 @@ D2::Area::Area(vector<Polygon> polygons, vector<Ellipse> ellipses, function<floa
           attenuation(std::move(attenuation)) {}
 
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "stb_image_write.h"
 
