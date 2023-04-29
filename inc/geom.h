@@ -18,13 +18,7 @@ namespace D2 {
 
         // Квадрат расстояния до точки из начала координат
         [[nodiscard]] real sqrad() const;
-
-        // Проверка на действительность
-        [[nodiscard]] bool is_nopnt() const;
     };
-
-    // Недействительная точка
-    const Pnt NOPNT = Pnt(NOREAL, NOREAL);
 
 
     // Единичный вектор, задается азимутальным в [0, 2pi) углом
@@ -43,14 +37,8 @@ namespace D2 {
         [[nodiscard]] Vec perp() const;
 
         // Направляющие косинусы
-        [[nodiscard]] List(2) guiding_cos() const;
-
-        // Проверка на действительность
-        [[nodiscard]] bool is_novec() const;
+        [[nodiscard]] List guiding_cos() const;
     };
-
-    // Недействительный вектор
-    const Vec NOVEC = Vec(0, 0);
 
 
     // Луч как закрепленный вектор
@@ -66,13 +54,7 @@ namespace D2 {
 
         // Луч, перпендикулярный данному
         [[nodiscard]] Ray perp() const;
-
-        // Проверка на действительность
-        [[nodiscard]] bool is_noray() const;
     };
-
-    // Недействительный луч
-    const Ray NORAY = Ray(NOPNT, NOVEC);
 
 
     // Произвольный эллипс на координатной плоскости
@@ -98,26 +80,26 @@ namespace D2 {
         [[nodiscard]] bool contains(Pnt &) const;
 
         // Точки пересечения с заданным лучом
-        [[nodiscard]] array<Pnt, 2> collide(Ray &ray) const;
+        [[nodiscard]] vector<Pnt> collide(Ray &ray) const;
     };
 
 
     // Произвольный треугольник на координатной плоскости, задается точками вершин
     class Polygon {
         // Точки вершин, в порядке по часовой стрелке
-        array<Pnt, 3> vertices;
+        vector<Pnt> vertices;
     public:
         // Лямбда, задающая значение коэффициента ослабления внутри треугольника
         function<real(const Pnt &)> attenuation;
 
         // Конструктор треугольника
-        Polygon(array<Pnt, 3>, function<real(const Pnt &)>);
+        Polygon(vector<Pnt>, function<real(const Pnt &)>);
 
         // Проверка на вхождение точки
         [[nodiscard]] bool contains(Pnt &) const;
 
         // Точки пересечения с заданным лучом
-        [[nodiscard]] array<Pnt, 2> collide(Ray &ray) const;
+        [[nodiscard]] vector<Pnt> collide(Ray &ray) const;
     };
 
 
@@ -160,13 +142,7 @@ namespace D3 {
 
         // Квадрат расстояния до точки из начала координат
         [[nodiscard]] real sqrad() const;
-
-        // Проверка на действительность
-        [[nodiscard]] bool is_nopnt() const;
     };
-
-    // Недействительная точка
-    const Pnt NOPNT = Pnt(NOREAL, NOREAL, NOREAL);
 
 
     // Единичный вектор, задается азимутальным в [0, 2pi) и зенитным в [0, pi] углом
@@ -185,14 +161,8 @@ namespace D3 {
         [[nodiscard]] Vec perp() const;
 
         // Направляющие косинусы
-        [[nodiscard]] List(3) guiding_cos() const;
-
-        // Проверка на действительность
-        [[nodiscard]] bool is_novec() const;
+        [[nodiscard]] List guiding_cos() const;
     };
-
-    // Недействительный вектор
-    const Vec NOVEC = Vec(0, 0, 0, 0);
 
 
     // Луч как закрепленный вектор
@@ -208,19 +178,13 @@ namespace D3 {
 
         // Луч, перпендикулярный данному
         [[nodiscard]] Ray perp() const;
-
-        // Проверка на действительность
-        [[nodiscard]] bool is_noray() const;
     };
-
-    // Недействительный луч
-    const Ray NORAY = Ray(NOPNT, NOVEC);
 
 
     class Sphere {
     public:
         // Точки пересечения с заданным лучом
-        static array<Pnt, 2> collide(Ray &ray);
+        static vector<Pnt> collide(Ray &ray);
     };
 }
 

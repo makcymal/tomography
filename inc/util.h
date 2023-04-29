@@ -1,7 +1,9 @@
 #pragma once
 
-#include <array>
+#include <vector>
+#include <list>
 #include "glob.h"
+#include "geom.h"
 
 using namespace std;
 
@@ -17,4 +19,7 @@ public:
 
 // Решение квадратного уравнения - возвращает массив,
 // заполненный сначала его корнями в порядке убывания, затем значениями NOREAL
-List(2) quadeq(real A, real B, real C);
+List quadeq(real A, real B, real C);
+
+
+void make_jpg(char const *filename, int width, int height, const void *data);

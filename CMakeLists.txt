@@ -7,9 +7,9 @@ add_executable(tomography
         src/main.cpp
         src/geom.cpp
         src/util.cpp
-        src/algo.cpp
+#        src/algo.cpp
         src/radon.cpp
-        )
+        src/nummeth.cpp)
 
 target_include_directories(tomography
         PRIVATE
