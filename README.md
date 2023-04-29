@@ -1,11 +1,16 @@
 ### Прямая
 Прямая на расстоянии $\rho$ от начала координат, отрезок нормали к которой из начала координат составляет с положительным направлением $Ox$ угол $\phi$ (против часовой стрелки), задается
-$$x \cos{\phi} + y \sin{\phi} - \rho = 0$$
+
+```math
+  x \cos{\phi} + y \sin{\phi} - \rho = 0
+```
 или, параметрически
-$$\begin{cases}
-x = \rho \cos{\phi} - t \sin{\phi} \\
-y = \rho \sin{\phi} + t \cos{\phi}
-\end{cases}$$
+```math
+  \begin{cases}
+    x=\rho\cos{\phi}-t\sin{\phi} \\
+    y=\rho\sin{\phi}+t\cos{\phi}
+  \end{cases}
+```
 
 ### Преобразование Радона
 
@@ -17,7 +22,9 @@ y = \rho \sin{\phi} + t \cos{\phi}
 Благодаря тому, что величина $\rho$, условно имеющая геометрический смысл расстояния, может быть отрицательной, угол между $Ox^+$ и нормалью есть $\phi \in [0, \pi)$ 
 
 Имея **частоту дискретизации ```NRHO``` и ```NPHI```** множество всех прямых ограничивается множеством прямых, для которых
-$$\rho = a \cdot \frac{i}{N_\rho} \;,\; 
-i \in [-N_\rho, N_\rho] \;\cap\; \mathbb{Z}$$
-$$\phi = \pi \cdot \frac{j}{N_\phi} \;,\;
-j \in [0, N_\phi) \;\cap\; \mathbb{Z}$$
+```math
+  \rho = a \cdot \frac{i}{N_\rho} \;,\; 
+  i \in [-N_\rho, N_\rho] \;\cap\; \mathbb{Z}
+  \phi = \pi \cdot \frac{j}{N_\phi} \;,\;
+  j \in [0, N_\phi) \;\cap\; \mathbb{Z}
+```
