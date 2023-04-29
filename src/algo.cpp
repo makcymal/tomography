@@ -5,13 +5,13 @@
 #include "glob.h"
 
 
-void convolution(Matrix &grid, Matrix &conv, Config &config) {
-    double sum;
+void convolution(DynMatr &grid, DynMatr &conv, Config &config) {
+    real sum;
 
-    for (auto pt = 0; pt < 2 * config.pts + 1; ++pt) {
-        for (auto dir = 0; dir < config.dirs; ++dir) {
+    for (auto pt = 0; pt < 2 * config.n_rho + 1; ++pt) {
+        for (auto dir = 0; dir < config.n_phi; ++dir) {
             sum = 0;
-            for (auto pti = 0; pti < 2 * config.pts + 1; ++pti) {
+            for (auto pti = 0; pti < 2 * config.n_rho + 1; ++pti) {
                 sum += grid[pti][dir] / (1 - 4 * (pt - pti) * (pt - pti));
             }
             conv[pt][dir] = sum;
@@ -19,20 +19,20 @@ void convolution(Matrix &grid, Matrix &conv, Config &config) {
     }
 }
 
-float backprojection(double &backproj, double &x, double &y, Matrix &conv, Config &config) {
-    double sum = 0;
+real backprojection(real x, real y, DynMatr &conv, Config &config) {
+    real sum = 0;
 
-    for (auto dir = 0; dir < config.dirs; ++dir) {
-        double phi = PI * dir / config.dirs;
-        double s = x * cos(phi) + y * sin(phi);
-        double rs = s * config.pts;
-        int is = floor(s * config.pts);
-        double s_mantissa = abs(rs - is);
+    for (auto phi_idx = 0; phi_idx < config.n_phi; ++phi_idx) {
+        real phi = PI * phi_idx / config.n_phi;
+        real rho = x * cos(phi) + y * sin(phi);
+        real rho_real_idx = rho * config.n_rho;
+        int rho_idx = floor(rho_real_idx);
+        real rho_mantissa = abs(rho_real_idx - rho_idx);
 
-        sum += (1 - s_mantissa) * conv[config.pts + is][dir] +
-               s_mantissa * conv[config.pts + is + 1][dir];
+        sum += (1 - rho_mantissa) * conv[config.n_rho + rho_idx][phi_idx] +
+               rho_mantissa * conv[config.n_rho + rho_idx + 1][phi_idx];
     }
 
-    return 2 * config.pts * sum / (PI * config.dirs);
+    return 2 * config.n_rho * sum / (PI * config.n_phi);
 }
 

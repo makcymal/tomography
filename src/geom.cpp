@@ -3,19 +3,24 @@
 #include <cmath>
 #include <cassert>
 
-using namespace std;
-
 #include "geom.h"
 #include "glob.h"
 #include "util.h"
 
+using namespace std;
+
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
+#include "stb_image_write.h"
+
 
 // Конструктор точки
-D2::Pnt::Pnt(float x, float y) :
+D2::Pnt::Pnt(real x, real y) :
         x(x), y(y) {}
 
 // Квадрат расстояния до точки из начала координат
-float D2::Pnt::sqrad() const {
+real D2::Pnt::sqrad() const {
     return x * x + y * y;
 }
 
@@ -26,26 +31,26 @@ bool D2::Pnt::is_nopnt() const {
 
 
 // Конструктор вектора по зенитному углу
-D2::Vec::Vec(float zenith) :
-        zencos(cos(zenith)), zensin(sin(zenith)) {}
+D2::Vec::Vec(real azimuth) :
+        azicos(cos(azimuth)), azisin(sin(azimuth)) {}
 
 // Конструктор вектора по значениям косинуса и синуса
-D2::Vec::Vec(float zencos, float zensin) :
-        zencos(zencos), zensin(zensin) {}
+D2::Vec::Vec(real azicos, real azisin) :
+        azicos(azicos), azisin(azisin) {}
 
 // Вектор, перпендикулярный данному
 D2::Vec D2::Vec::perp() const {
-    return {-zensin, zencos};
+    return {-azisin, azicos};
 }
 
 // Направляющие косинусы
-array<float, 2> D2::Vec::guiding_cos() const {
-    return {zencos, zensin};
+List(2) D2::Vec::guiding_cos() const {
+    return {azicos, azisin};
 }
 
 // Проверка на действительность
 bool D2::Vec::is_novec() const {
-    return zencos == D2::NOVEC.zencos && zensin == D2::NOVEC.zensin;
+    return azicos == D2::NOVEC.azicos && azisin == D2::NOVEC.azisin;
 }
 
 
@@ -65,7 +70,7 @@ bool D2::Ray::is_noray() const {
 
 
 // Конструктор эллипса
-D2::Ellipse::Ellipse(Pnt center, float a, float b, float rotation, function<float(const Pnt &)> attenuation) :
+D2::Ellipse::Ellipse(Pnt center, real a, real b, real rotation, function<real(const Pnt &)> attenuation) :
         center(center),
         sqa(a * a), sqb(b * b),
         rotcos(cos(rotation)), rotsin(sin(rotation)),
@@ -80,45 +85,46 @@ void D2::Ellipse::formula() const {
 
 // Проверка на вхождение точки
 bool D2::Ellipse::contains(Pnt &pnt) const {
-    float xi = rotcos * (pnt.x - center.x) + rotsin * (pnt.y - center.y),
+    real
+            xi = rotcos * (pnt.x - center.x) + rotsin * (pnt.y - center.y),
             nu = rotsin * (pnt.x - center.x) - rotcos * (pnt.y - center.y);
     return sqb * xi * xi + sqa * nu * nu <= sqa * sqb;
 }
 
 // Точки пересечения с заданным лучом
 array<D2::Pnt, 2> D2::Ellipse::collide(Ray &ray) const {
-#define zc ray.direction.zencos
-#define zs ray.direction.zensin
+#define ac ray.direction.azicos
+#define as ray.direction.azisin
 
-    float
+    real
             dx = ray.inception.x - center.x,
             dy = ray.inception.y - center.y;
-    float
+    real
             p = sqb * rotcos * rotcos + sqa * rotsin * rotsin,
             q = sqb * rotsin * rotsin + sqa * rotcos * rotcos,
             g = sqb - sqa;
 
     // Коэффициенты квадратного уравнения относительно расстояния между началом луча и точкой пересечения с эллипсом
-    float A = zc * zc * p + 2 * rotcos * rotsin * zc * zs * g + zs * zs * q;
-    float B = 2 * dx * zc * p + 2 * rotcos * rotsin * g * (dx * zs + dy * zc) + 2 * dy * zs * q;
-    float C = dx * dx * p + 2 * dx * dy * rotcos * rotsin * g + dy * dy * q - sqa * sqb;
+    real A = ac * ac * p + 2 * rotcos * rotsin * ac * as * g + as * as * q;
+    real B = 2 * dx * ac * p + 2 * rotcos * rotsin * g * (dx * as + dy * ac) + 2 * dy * as * q;
+    real C = dx * dx * p + 2 * dx * dy * rotcos * rotsin * g + dy * dy * q - sqa * sqb;
 
     array<Pnt, 2> collisions = {NOPNT, NOPNT};
-    array<float, 2> tau = quadeq(A, B, C);
+    List(2) tau = quadeq(A, B, C);
 
     for (auto i = 0; i < 2; ++i) {
-        if (tau[i] < 0 || tau[i] == NOFLT) return collisions;
-        collisions[i] = Pnt(ray.inception.x + zc * tau[i], ray.inception.y + zs * tau[i]);
+        if (tau[i] < 0 || tau[i] == NOREAL) return collisions;
+        collisions[i] = Pnt(ray.inception.x + ac * tau[i], ray.inception.y + as * tau[i]);
     }
     return collisions;
 
-#undef zc
-#undef zs
+#undef ac
+#undef as
 }
 
 
 // Конструктор треугольника
-D2::Polygon::Polygon(array<Pnt, 3> vertices, function<float(const Pnt &)> attenuation) :
+D2::Polygon::Polygon(array<Pnt, 3> vertices, function<real(const Pnt &)> attenuation) :
         vertices(vertices),
         attenuation(std::move(attenuation)) {}
 
@@ -142,13 +148,13 @@ bool D2::Polygon::contains(Pnt &pnt) const {
 
 // Точки пересечения с заданным лучом
 array<D2::Pnt, 2> D2::Polygon::collide(Ray &ray) const {
-#define zc ray.direction.zencos
-#define zs ray.direction.zensin
+#define ac ray.direction.azicos
+#define as ray.direction.azisin
 
     array<D2::Pnt, 2> collisions = {NOPNT, NOPNT};
     int found = 0;
     int last_idx = -1;
-    float prev_t = -1;
+    real prev_t = -1;
 
     for (auto i = 0; i < 3; ++i) {
         // Если две точки столкновения уже найдены
@@ -159,16 +165,16 @@ array<D2::Pnt, 2> D2::Polygon::collide(Ray &ray) const {
 
         // Пусть искомая точка: lend * t + rend * (1 - t) = ray.inception + l * (zencos, zensin)
         // Определитель матрицы системы на t, l
-        float det = zs * (rend.x - lend.x) + zc * (lend.y - rend.y);
-        if (FLT_EQ(det, 0)) {
+        real det = as * (rend.x - lend.x) + ac * (lend.y - rend.y);
+        if (real_eq(det, 0)) {
             prev_t = -1;
             continue;
         }
 
-        float t = (zs * (rend.x - ray.inception.x) + zc * (ray.inception.y - rend.y)) / det;
-        float l = ((rend.y - lend.y) * ray.inception.x + (lend.x - rend.x) * ray.inception.y +
-                   lend.y * rend.x - lend.x * rend.y) / det;
-        if (t < 0 || 1 < t || FLT_EQ(prev_t + t, 1) || l < 0) {
+        real t = (as * (rend.x - ray.inception.x) + ac * (ray.inception.y - rend.y)) / det;
+        real l = ((rend.y - lend.y) * ray.inception.x + (lend.x - rend.x) * ray.inception.y +
+                  lend.y * rend.x - lend.x * rend.y) / det;
+        if (t < 0 || 1 < t || real_eq(prev_t + t, 1) || l < 0) {
             prev_t = -1;
             continue;
         }
@@ -180,26 +186,22 @@ array<D2::Pnt, 2> D2::Polygon::collide(Ray &ray) const {
 
     return collisions;
 
-#undef zc
-#undef zs
+#undef ac
+#undef as
 }
 
 
 // Конструктор области
-D2::Area::Area(vector<Polygon> polygons, vector<Ellipse> ellipses, function<float(const Pnt &)> attenuation)
+D2::Area::Area(vector<Polygon> polygons, vector<Ellipse> ellipses, function<real(const Pnt &)> attenuation)
         : polygons(std::move(polygons)),
           ellipses(std::move(ellipses)),
           attenuation(std::move(attenuation)) {}
 
 
-//#define STB_IMAGE_WRITE_IMPLEMENTATION
-
-#include "stb_image_write.h"
-
 // Создание изображения "area.jpg" с полутоновым изображением области
 void D2::Area::image(int size) {
     unsigned char atten[size][size];
-    float step = 2.f / (float) size;
+    real step = 2.f / (real) size;
     Pnt pnt = {-1, 1};
 
     for (auto y = 0; y < size; ++y) {
@@ -238,12 +240,12 @@ void D2::Area::image(int size) {
 
 
 // Конструктор точки
-D3::Pnt::Pnt(float x, float y, float z) :
+D3::Pnt::Pnt(real x, real y, real z) :
         x(x), y(y), z(z) {}
 
 // Квадрат расстояния от начала координат до точки
-float D3::Pnt::sqrad() const {
-    return x * x + y * y;
+real D3::Pnt::sqrad() const {
+    return x * x + y * y + z * z;
 }
 
 // Проверка на действительность
@@ -253,29 +255,29 @@ bool D3::Pnt::is_nopnt() const {
 
 
 // Конструктор вектора по зенитному и азимутальному углу
-D3::Vec::Vec(float zenith, float azimuth) :
-        zencos(cos(zenith)), zensin(sin(zenith)),
-        azicos(cos(azimuth)), azisin(sin(azimuth)) {}
+D3::Vec::Vec(real azimuth, real zenith) :
+        azicos(cos(azimuth)), azisin(sin(azimuth)),
+        zencos(cos(zenith)), zensin(sin(zenith)) {}
 
 // Конструктор вектора по значениям косинусов и синусов
-D3::Vec::Vec(float zencos, float zensin, float azicos, float azisin) :
-        zencos(zencos), zensin(zensin),
-        azicos(azicos), azisin(azisin) {}
+D3::Vec::Vec(real azicos, real azisin, real zencos, real zensin) :
+        azicos(azicos), azisin(azisin),
+        zencos(zencos), zensin(zensin) {}
 
 // Вектор, перпендикулярный данному
 D3::Vec D3::Vec::perp() const {
-    return {-zensin, zencos, 0, 1};
+    return {-azisin, azicos, 0, 1};
 }
 
 // Направляющие косинусы
-array<float, 3> D3::Vec::guiding_cos() const {
-    return {azicos * zencos, azicos * zensin, azisin};
+List(3) D3::Vec::guiding_cos() const {
+    return {zencos * azicos, zencos * azisin, zensin};
 }
 
 // Проверка на действительность
 bool D3::Vec::is_novec() const {
-    return zencos == D3::NOVEC.zencos && zensin == D3::NOVEC.zensin &&
-           azicos == D3::NOVEC.azicos && azisin == D3::NOVEC.azisin;
+    return azicos == D3::NOVEC.azicos && azisin == D3::NOVEC.azisin &&
+           zencos == D3::NOVEC.zencos && zensin == D3::NOVEC.zensin;
 }
 
 // Конструктор луча
@@ -295,20 +297,20 @@ bool D3::Ray::is_noray() const {
 
 // Точки пересечения с заданным лучом
 array<D3::Pnt, 2> D3::Sphere::collide(Ray &ray) {
-    float C = ray.inception.sqrad();
+    real C = ray.inception.sqrad();
     assert(C <= 1);
 
-    array<float, 3> guiding_cos = ray.direction.guiding_cos();
-    float B = ray.inception.x * guiding_cos[0] +
-              ray.inception.y * guiding_cos[1] +
-              ray.inception.z * guiding_cos[2];
+    List(3) guiding_cos = ray.direction.guiding_cos();
+    real B = ray.inception.x * guiding_cos[0] +
+             ray.inception.y * guiding_cos[1] +
+             ray.inception.z * guiding_cos[2];
 
     // корни в порядке убывания
-    array<float, 2> tau = quadeq(1, B, C);
+    List(2) tau = quadeq(1, B, C);
     array<Pnt, 2> collisions = {NOPNT, NOPNT};
 
     for (auto i = 0; i < 2; ++i) {
-        if (tau[i] == NOFLT) break;
+        if (tau[i] == NOREAL) break;
         collisions[i] = {
                 ray.inception.x + tau[i] * guiding_cos[0],
                 ray.inception.y + tau[i] * guiding_cos[1],

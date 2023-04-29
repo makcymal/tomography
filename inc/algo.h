@@ -4,6 +4,6 @@
 #include "util.h"
 
 
-void convolution(Matrix &, Matrix &, Config &);
+void convolution(DynMatr &, DynMatr &, Config &);
 
-float backprojection(double &backproj, double &x, double &y, Matrix &conv, Config &config);
+real backprojection(real x, real y, DynMatr &conv, Config &config);

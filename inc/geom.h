@@ -11,39 +11,39 @@ namespace D2 {
     class Pnt {
     public:
         // Координаты точки
-        float x, y;
+        real x, y;
 
         // Конструктор точки
-        Pnt(float, float);
+        Pnt(real, real);
 
         // Квадрат расстояния до точки из начала координат
-        [[nodiscard]] float sqrad() const;
+        [[nodiscard]] real sqrad() const;
 
         // Проверка на действительность
         [[nodiscard]] bool is_nopnt() const;
     };
 
     // Недействительная точка
-    const Pnt NOPNT = Pnt(NOFLT, NOFLT);
+    const Pnt NOPNT = Pnt(NOREAL, NOREAL);
 
 
-    // Единичный вектор, задается зенитным в [0, 2pi) углом
+    // Единичный вектор, задается азимутальным в [0, 2pi) углом
     class Vec {
     public:
-        // Косинус и синус зенитного угла
-        float zencos, zensin;
+        // Косинус и синус азимутального угла
+        real azicos, azisin;
 
-        // Конструктор вектора по зенитному углу
-        explicit Vec(float);
+        // Конструктор вектора по азимутальному углу
+        explicit Vec(real);
 
         // Конструктор вектора по значениям косинуса и синуса
-        Vec(float, float);
+        Vec(real, real);
 
         // Вектор, перпендикулярный данному
         [[nodiscard]] Vec perp() const;
 
         // Направляющие косинусы
-        [[nodiscard]] array<float, 2> guiding_cos() const;
+        [[nodiscard]] List(2) guiding_cos() const;
 
         // Проверка на действительность
         [[nodiscard]] bool is_novec() const;
@@ -76,20 +76,20 @@ namespace D2 {
 
 
     // Произвольный эллипс на координатной плоскости
-    // Задается точкой центра, длинами большой и малой полуоси, зенитным углом поворота
+    // Задается точкой центра, длинами большой и малой полуоси, азимутальным углом поворота
     class Ellipse {
         // Центр эллипса
         Pnt center;
         // Квадраты длин большой и малой полуосей
-        float sqa, sqb;
+        real sqa, sqb;
         // Косинусы и синусы угла поворота
-        float rotcos, rotsin;
+        real rotcos, rotsin;
     public:
         // Лямбда, задающая значение коэффициента ослабления внутри эллипса
-        function<float(const Pnt &)> attenuation;
+        function<real(const Pnt &)> attenuation;
 
         // Конструктор эллипса
-        Ellipse(Pnt, float, float, float, function<float(const Pnt &)>);
+        Ellipse(Pnt, real, real, real, function<real(const Pnt &)>);
 
         // Формула для графопостроителя
         void formula() const;
@@ -108,10 +108,10 @@ namespace D2 {
         array<Pnt, 3> vertices;
     public:
         // Лямбда, задающая значение коэффициента ослабления внутри треугольника
-        function<float(const Pnt &)> attenuation;
+        function<real(const Pnt &)> attenuation;
 
         // Конструктор треугольника
-        Polygon(array<Pnt, 3>, function<float(const Pnt &)>);
+        Polygon(array<Pnt, 3>, function<real(const Pnt &)>);
 
         // Проверка на вхождение точки
         [[nodiscard]] bool contains(Pnt &) const;
@@ -124,15 +124,15 @@ namespace D2 {
     // Область - круг радиуса 1 с центром в начале координат, представляющий собой сечение области G
     class Area {
         // Содержащиеся внутри треугольники
-        std::vector<Polygon> polygons;
+        vector<Polygon> polygons;
         // Содержащиеся внутри эллипсы
-        std::vector<Ellipse> ellipses;
+        vector<Ellipse> ellipses;
     public:
         // Лямбда, задающая значение коэффициента ослабления внутри эллипса
-        std::function<float(const Pnt &)> attenuation;
+        function<real(const Pnt &)> attenuation;
 
         // Конструктор области
-        Area(std::vector<Polygon>, std::vector<Ellipse>, std::function<float(const Pnt &)>);
+        Area(vector<Polygon>, vector<Ellipse>, function<real(const Pnt &)>);
 
         // Создание изображения "area.jpg" с полутоновым изображением области
         void image(int);
@@ -153,39 +153,39 @@ namespace D3 {
     class Pnt {
     public:
         // Координаты точки
-        float x, y, z;
+        real x, y, z;
 
         // Конструктор точки
-        Pnt(float, float, float);
+        Pnt(real, real, real);
 
         // Квадрат расстояния до точки из начала координат
-        [[nodiscard]] float sqrad() const;
+        [[nodiscard]] real sqrad() const;
 
         // Проверка на действительность
         [[nodiscard]] bool is_nopnt() const;
     };
 
     // Недействительная точка
-    const Pnt NOPNT = Pnt(NOFLT, NOFLT, NOFLT);
+    const Pnt NOPNT = Pnt(NOREAL, NOREAL, NOREAL);
 
 
-    // Единичный вектор, задается зенитным в [0, 2pi) и азимутальным в [0, pi] углом
+    // Единичный вектор, задается азимутальным в [0, 2pi) и зенитным в [0, pi] углом
     class Vec {
     public:
-        // Косинусы и синусы зенитного и азимутального углов
-        float zencos, zensin, azicos, azisin;
+        // Косинусы и синусы азимутального и зенитного углов
+        real azicos, azisin, zencos, zensin;
 
-        // Конструктор вектора по зенитному и азимутальному углу
-        Vec(float, float);
+        // Конструктор вектора по азимутальному и зенитному углу
+        Vec(real, real);
 
         // Конструктор вектора по значениям косинусов и синусов
-        Vec(float, float, float, float);
+        Vec(real, real, real, real);
 
         // Вектор, перпендикулярный данному
         [[nodiscard]] Vec perp() const;
 
         // Направляющие косинусы
-        [[nodiscard]] array<float, 3> guiding_cos() const;
+        [[nodiscard]] List(3) guiding_cos() const;
 
         // Проверка на действительность
         [[nodiscard]] bool is_novec() const;
@@ -197,7 +197,8 @@ namespace D3 {
 
     // Луч как закрепленный вектор
     class Ray {
-    public:// Точка начала луча
+    public:
+        // Точка начала луча
         Pnt inception;
         // Направляющий вектор луча
         Vec direction;
@@ -221,5 +222,6 @@ namespace D3 {
         // Точки пересечения с заданным лучом
         static array<Pnt, 2> collide(Ray &ray);
     };
-
 }
+
+
