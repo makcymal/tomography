@@ -1,8 +1,10 @@
 /.idea/
 /venv/
 /cmake-build-debug/
-*.env
+
 *.dat
+*.env
+!*.example.env
 
 inc/stb_image_write.h
 /img/
