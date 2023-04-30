@@ -14,7 +14,7 @@ namespace D2 {
         real x, y;
 
         // Конструктор точки
-        Pnt(real, real);
+        Pnt(real x, real y);
 
         // Квадрат расстояния до точки из начала координат
         [[nodiscard]] real sqrad() const;
@@ -28,16 +28,16 @@ namespace D2 {
         real azicos, azisin;
 
         // Конструктор вектора по азимутальному углу
-        explicit Vec(real);
+        explicit Vec(real azimuth);
 
         // Конструктор вектора по значениям косинуса и синуса
-        Vec(real, real);
+        Vec(real azicos, real azisin);
 
         // Вектор, перпендикулярный данному
         [[nodiscard]] Vec perp() const;
 
         // Направляющие косинусы
-        [[nodiscard]] List guiding_cos() const;
+        [[nodiscard]] List(2) guiding_cos() const;
     };
 
 
@@ -50,7 +50,7 @@ namespace D2 {
         Vec direction;
 
         // Конструктор луча
-        Ray(Pnt, Vec);
+        Ray(Pnt inception, Vec direction);
 
         // Луч, перпендикулярный данному
         [[nodiscard]] Ray perp() const;
@@ -66,58 +66,64 @@ namespace D2 {
         real sqa, sqb;
         // Косинусы и синусы угла поворота
         real rotcos, rotsin;
-    public:
         // Лямбда, задающая значение коэффициента ослабления внутри эллипса
-        function<real(const Pnt &)> attenuation;
-
+        function<real(const Pnt &)> atten;
+    public:
         // Конструктор эллипса
-        Ellipse(Pnt, real, real, real, function<real(const Pnt &)>);
+        Ellipse(Pnt center, real a, real b, real rotation, function<real(const Pnt &)> atten);
 
         // Формула для графопостроителя
         void formula() const;
 
         // Проверка на вхождение точки
-        [[nodiscard]] bool contains(Pnt &) const;
+        [[nodiscard]] bool contains(Pnt &pnt) const;
 
         // Точки пересечения с заданным лучом
         [[nodiscard]] vector<Pnt> collide(Ray &ray) const;
+
+        // Коэффиент ослабления внутри эллипса
+        real attenuation(Pnt &pnt) const;
     };
 
 
     // Произвольный треугольник на координатной плоскости, задается точками вершин
     class Polygon {
         // Точки вершин, в порядке по часовой стрелке
-        vector<Pnt> vertices;
-    public:
+        array<Pnt, 3> vertices;
         // Лямбда, задающая значение коэффициента ослабления внутри треугольника
-        function<real(const Pnt &)> attenuation;
-
+        function<real(const Pnt &)> atten;
+    public:
         // Конструктор треугольника
-        Polygon(vector<Pnt>, function<real(const Pnt &)>);
+        Polygon(array<Pnt, 3> vertices, function<real(const Pnt &)> atten);
 
         // Проверка на вхождение точки
-        [[nodiscard]] bool contains(Pnt &) const;
+        [[nodiscard]] bool contains(Pnt &pnt) const;
 
         // Точки пересечения с заданным лучом
         [[nodiscard]] vector<Pnt> collide(Ray &ray) const;
+
+        // Коэффиент ослабления внутри треугольника
+        real attenuation(Pnt &pnt) const;
     };
 
 
     // Область - круг радиуса 1 с центром в начале координат, представляющий собой сечение области G
     class Area {
-        // Содержащиеся внутри треугольники
-        vector<Polygon> polygons;
         // Содержащиеся внутри эллипсы
         vector<Ellipse> ellipses;
+        // Содержащиеся внутри треугольники
+        vector<Polygon> polygons;
+        // Лямбда, задающая значение коэффициента ослабления внутри области
+        function<real(const Pnt &)> atten;
     public:
-        // Лямбда, задающая значение коэффициента ослабления внутри эллипса
-        function<real(const Pnt &)> attenuation;
-
         // Конструктор области
-        Area(vector<Polygon>, vector<Ellipse>, function<real(const Pnt &)>);
+        explicit Area(function<real(const Pnt &)> atten, vector<Ellipse> ellipse={}, vector<Polygon> polygon={});
+
+        // Коэффиент ослабления внутри области с учетом внутренних областей
+        real attenuation(Pnt &pnt) const;
 
         // Создание изображения "area.jpg" с полутоновым изображением области
-        void image(int);
+        void image(int size) const;
     };
 }
 
@@ -138,7 +144,7 @@ namespace D3 {
         real x, y, z;
 
         // Конструктор точки
-        Pnt(real, real, real);
+        Pnt(real x, real y, real z);
 
         // Квадрат расстояния до точки из начала координат
         [[nodiscard]] real sqrad() const;
@@ -152,16 +158,16 @@ namespace D3 {
         real azicos, azisin, zencos, zensin;
 
         // Конструктор вектора по азимутальному и зенитному углу
-        Vec(real, real);
+        Vec(real azimuth, real zenith);
 
         // Конструктор вектора по значениям косинусов и синусов
-        Vec(real, real, real, real);
+        Vec(real azicos, real azisin, real zencos, real zensin);
 
         // Вектор, перпендикулярный данному
         [[nodiscard]] Vec perp() const;
 
         // Направляющие косинусы
-        [[nodiscard]] List guiding_cos() const;
+        [[nodiscard]] List(3) guiding_cos() const;
     };
 
 
@@ -174,7 +180,7 @@ namespace D3 {
         Vec direction;
 
         // Конструктор луча
-        Ray(Pnt, Vec);
+        Ray(Pnt inception, Vec direction);
 
         // Луч, перпендикулярный данному
         [[nodiscard]] Ray perp() const;

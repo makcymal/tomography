@@ -1,9 +1,10 @@
 #pragma once
 
-#define INPUT "input.dat"
-#define OUTPUT "output.dat"
+#include <functional>
+#include "glob.h"
+#include "geom.h"
+#include "util.h"
 
-// Двумерная сеточная функция
-class GridFunc {
+using namespace std;
 
-};
+DynMatr radon(D2::Area &prm, Config &config);

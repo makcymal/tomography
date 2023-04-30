@@ -19,7 +19,9 @@ public:
 
 // Решение квадратного уравнения - возвращает массив,
 // заполненный сначала его корнями в порядке убывания, затем значениями NOREAL
-List quadeq(real A, real B, real C);
+DynList quadeq(real A, real B, real C);
 
 
 void make_jpg(char const *filename, int width, int height, const void *data);
+
+void make_jpg(char const *filename, DynMatr &data);

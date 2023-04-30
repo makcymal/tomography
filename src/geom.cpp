@@ -36,7 +36,7 @@ namespace D2 {
     }
 
     // Направляющие косинусы
-    List Vec::guiding_cos() const {
+    List(2) Vec::guiding_cos() const {
         return {azicos, azisin};
     }
 
@@ -52,11 +52,11 @@ namespace D2 {
 
 
     // Конструктор эллипса
-    Ellipse::Ellipse(Pnt center, real a, real b, real rotation, function<real(const Pnt &)> attenuation) :
+    Ellipse::Ellipse(Pnt center, real a, real b, real rotation, function<real(const Pnt &)> atten) :
             center(center),
             sqa(a * a), sqb(b * b),
             rotcos(cos(rotation)), rotsin(sin(rotation)),
-            attenuation(std::move(attenuation)) {}
+            atten(std::move(atten)) {}
 
     // Формула для графопостроителя
     void Ellipse::formula() const {
@@ -93,7 +93,7 @@ namespace D2 {
                 C = dx * dx * p + 2 * dx * dy * rotcos * rotsin * g + dy * dy * q - sqa * sqb;
 
         vector<Pnt> collisions;
-        List tau = quadeq(A, B, C);
+        DynList tau = quadeq(A, B, C);
 
         for (auto i = 0; i < 2; ++i) {
             if (tau[i] < 0) return collisions;
@@ -102,11 +102,16 @@ namespace D2 {
         return collisions;
     }
 
+    // Коэффиент ослабления внутри эллипса
+    real Ellipse::attenuation(Pnt &pnt) const {
+        return atten(pnt);
+    }
+
 
     // Конструктор треугольника
-    Polygon::Polygon(vector<Pnt> vertices, function<real(const Pnt &)> attenuation) :
-            vertices(std::move(vertices)),
-            attenuation(std::move(attenuation)) {}
+    Polygon::Polygon(array<Pnt, 3> vertices, function<real(const Pnt &)> atten) :
+            vertices(vertices),
+            atten(std::move(atten)) {}
 
     // Проверка на вхождение точки
     bool Polygon::contains(Pnt &pnt) const {
@@ -165,51 +170,51 @@ namespace D2 {
         return collisions;
     }
 
+    // Коэффиент ослабления внутри треугольника
+    real Polygon::attenuation(Pnt &pnt) const {
+        return atten(pnt);
+    }
+
 
     // Конструктор области
-    Area::Area(vector<Polygon> polygons, vector<Ellipse> ellipses, function<real(const Pnt &)> attenuation)
-            : polygons(std::move(polygons)),
-              ellipses(std::move(ellipses)),
-              attenuation(std::move(attenuation)) {}
+    Area::Area(function<real(const Pnt &)> atten, vector<Ellipse> ellipses, vector<Polygon> polygons)
+            : ellipses(std::move(ellipses)),
+              polygons(std::move(polygons)),
+              atten(std::move(atten)) {}
+
+    // Коэффиент ослабления внутри области с учетом внутренних областей
+    real Area::attenuation(Pnt &pnt) const {
+        if (pnt.sqrad() > 1) {
+            return 0;
+        }
+        for (const auto &ellipse: ellipses) {
+            if (ellipse.contains(pnt)) {
+                return ellipse.attenuation(pnt);
+            }
+        }
+        for (const auto &polygon: polygons) {
+            if (polygon.contains(pnt)) {
+                return polygon.attenuation(pnt);
+            }
+        }
+        return atten(pnt);
+    }
 
     // Создание изображения "area.jpg" с полутоновым изображением области
-    void Area::image(int size) {
-        unsigned char atten[size][size];
+    void Area::image(int size) const {
+        unsigned char pixels[size][size];
         real step = 2.f / (real) size;
         Pnt pnt = {-1, 1};
 
         for (auto y = 0; y < size; ++y) {
             for (auto x = 0; x < size; ++x) {
-                bool contained = false;
-
-                if (pnt.sqrad() > 1) {
-                    atten[y][x] = 0;
-                    contained = true;
-                }
-                for (const auto &polygon: polygons) {
-                    if (contained) break;
-                    if (polygon.contains(pnt)) {
-                        atten[y][x] = (unsigned char) polygon.attenuation(pnt);
-                        contained = true;
-                    }
-                }
-                for (const auto &ellipse: ellipses) {
-                    if (contained) break;
-                    if (ellipse.contains(pnt)) {
-                        atten[y][x] = (unsigned char) ellipse.attenuation(pnt);
-                        contained = true;
-                    }
-                }
-                if (!contained) {
-                    atten[y][x] = (unsigned char) attenuation(pnt);
-                }
+                pixels[y][x] = (unsigned char) attenuation(pnt);
                 pnt.x += step;
             }
             pnt.y -= step;
             pnt.x = -1;
         }
-
-        make_jpg("img/area.jpg", 0, 0, atten);
+        make_jpg("img/area.jpg", size, size, pixels);
     }
 }
 
@@ -241,7 +246,7 @@ namespace D3 {
     }
 
     // Направляющие косинусы
-    List Vec::guiding_cos() const {
+    List(3) Vec::guiding_cos() const {
         return {zencos * azicos, zencos * azisin, zensin};
     }
 
@@ -261,13 +266,13 @@ namespace D3 {
         real C = ray.inception.sqrad();
         assert(C <= 1);
 
-        List guiding_cos = ray.direction.guiding_cos();
+        List(3) guiding_cos = ray.direction.guiding_cos();
         real B = ray.inception.x * guiding_cos[0] +
                  ray.inception.y * guiding_cos[1] +
                  ray.inception.z * guiding_cos[2];
 
         // корни в порядке убывания
-        List tau = quadeq(1, B, C);
+        DynList tau = quadeq(1, B, C);
         vector<Pnt> collisions;
 
         for (auto i = 0; i < tau.size(); ++i) {

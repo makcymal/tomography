@@ -36,7 +36,7 @@ Config::Config() {
 
 // Решение квадратного уравнения - возвращает массив,
 // заполненный сначала его корнями в порядке убывания, затем значениями NOREAL
-List quadeq(real A, real B, real C) {
+DynList quadeq(real A, real B, real C) {
     if real_eq(A, 0) {
         assert(!real_eq(B, 0));
         return {-C / B};
@@ -47,7 +47,7 @@ List quadeq(real A, real B, real C) {
         return {-B / 2 / A};
     }
 
-    List roots;
+    DynList roots;
     D = sqrt(D);
     roots[0] = (-B - D) / 2 / A;
     roots[1] = (-B + D) / 2 / A;
@@ -63,4 +63,20 @@ List quadeq(real A, real B, real C) {
 
 void make_jpg(char const *filename, int width, int height, const void *data) {
     stbi_write_jpg(filename, width, height, 1, data, 100);
+}
+
+void make_jpg(char const *filename, DynMatr &data) {
+    unsigned char ndata[data.size()][data[0].size()];
+    real m = 0;
+    for (int y = 0; y < data.size(); ++y) {
+        for (int x = 0; x < data[0].size(); ++x) {
+            m = max(data[y][x], m);
+        }
+    }
+    for (int y = 0; y < data.size(); ++y) {
+        for (int x = 0; x < data[0].size(); ++x) {
+            ndata[y][x] = 255.f * data[y][x] / m;
+        }
+    }
+    stbi_write_jpg(filename, data[0].size(), data.size(), 1, ndata, 100);
 }
