@@ -16,7 +16,7 @@ using namespace D2;
 int main() {
     Config config = Config();
 
-    auto area = areagen1();
+    auto area = area_head();
     area.image(config);
 
     DynMatr radon_im = radon(area, config);
@@ -27,6 +27,3 @@ int main() {
 
     return 0;
 }
-
-
-

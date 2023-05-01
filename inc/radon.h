@@ -10,6 +10,8 @@ using namespace D2;
 
 DynMatr radon(Area &prm, Config &config);
 
-real backproj(const Pnt &pnt, float rho, DynMatr &radon_im, Config &config);
+DynMatr convolution(DynMatr &radon_im, Config &config);
+
+real backprojection(Pnt &pnt, DynMatr &conv, Config &config);
 
 DynMatr inv_radon(DynMatr &radon_im, Config &config);

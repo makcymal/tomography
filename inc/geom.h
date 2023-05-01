@@ -130,7 +130,7 @@ namespace D2 {
 
 // Функции распределения коэффициента ослабления
 #define RADIUS_ATTEN(diap) ([](const D2::Pnt &pnt) { return pnt.sqrad() * diap; })
-#define INV_RADIUS_ATTEN(diap) ([](const D2::Pnt &pnt) { return (1 - pnt.sqrad() * diap); })
+#define INV_RADIUS_ATTEN(diap) ([](const D2::Pnt &pnt) { return ((1 - pnt.sqrad()) * diap); })
 #define CATHETS_ATTEN(diap) ([](const D2::Pnt &pnt) { return (std::abs(pnt.x) + std::abs(pnt.y)) * (diap / 2); })
 #define OX_ATTEN(diap) ([](const D2::Pnt &pnt) { return std::abs(pnt.x) * diap; })
 #define OY_ATTEN(diap) ([](const D2::Pnt &pnt) { return std::abs(pnt.y) * diap; })
