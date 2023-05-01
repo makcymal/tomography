@@ -3,7 +3,6 @@
 #include <vector>
 #include <list>
 #include "glob.h"
-#include "geom.h"
 
 using namespace std;
 
@@ -22,6 +21,6 @@ public:
 DynList quadeq(real A, real B, real C);
 
 
-void make_jpg(char const *filename, int width, int height, const void *data);
+void make_jpg(char const *filename, int height, int width, const void *data);
 
 void make_jpg(char const *filename, DynMatr &data);

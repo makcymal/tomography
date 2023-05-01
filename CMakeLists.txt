@@ -7,7 +7,6 @@ add_executable(tomography
         src/main.cpp
         src/geom.cpp
         src/util.cpp
-#        src/algo.cpp
         src/radon.cpp
         src/nummeth.cpp)
 

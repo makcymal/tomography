@@ -6,7 +6,6 @@
 
 #include "geom.h"
 #include "glob.h"
-#include "util.h"
 
 using namespace std;
 
@@ -201,20 +200,21 @@ namespace D2 {
     }
 
     // Создание изображения "area.jpg" с полутоновым изображением области
-    void Area::image(int size) const {
-        unsigned char pixels[size][size];
-        real step = 2.f / (real) size;
-        Pnt pnt = {-1, 1};
+    void Area::image(Config &config) const {
+        int height = 2 * config.n_y + 1, width = 2 * config.n_x + 1;
+        unsigned char pixels[height][width];
+        real dy = (real)2 / height, dx = (real)2 / width;
+        Pnt pnt = {(real)-1, (real)1};
 
-        for (auto y = 0; y < size; ++y) {
-            for (auto x = 0; x < size; ++x) {
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
                 pixels[y][x] = (unsigned char) attenuation(pnt);
-                pnt.x += step;
+                pnt.x += dx;
             }
-            pnt.y -= step;
+            pnt.y -= dy;
             pnt.x = -1;
         }
-        make_jpg("img/area.jpg", size, size, pixels);
+        make_jpg("img/area.jpg", height, width, pixels);
     }
 }
 
