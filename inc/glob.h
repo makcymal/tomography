@@ -4,8 +4,8 @@
 
 #define real float
 
-#define PI 3.1415926535897932
-#define DPI 6.283185307179586
+#define PI 3.1415926535897932f
+#define DPI 6.283185307179586f
 
 #define CONFIG_FILE "config.env"
 
