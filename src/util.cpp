@@ -61,7 +61,7 @@ DynList quadeq(real A, real B, real C) {
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void make_jpg(char const *filename, int width, int height, const void *data) {
+void make_jpg(char const *filename, int height, int width, const void *data) {
     stbi_write_jpg(filename, width, height, 1, data, 100);
 }
 

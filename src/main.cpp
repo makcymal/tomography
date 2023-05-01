@@ -7,18 +7,23 @@
 #include "util.h"
 #include "radon.h"
 #include "nummeth.h"
+#include "area_gen.h"
 
 using namespace std;
 using namespace D2;
 
 
 int main() {
-    auto config = Config();
+    Config config = Config();
 
-    Area area = Area(CONST_ATTEN(255));
+    auto area = areagen1();
+    area.image(config);
 
-    DynMatr transformed = radon(area, config);
-    make_jpg("img/tran.jpg", transformed);
+    DynMatr radon_im = radon(area, config);
+    make_jpg("img/radon_im.jpg", radon_im);
+
+    DynMatr area_obt = inv_radon(radon_im, config);
+    make_jpg("img/area_obt.jpg", area_obt);
 
     return 0;
 }

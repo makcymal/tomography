@@ -3,6 +3,7 @@
 #include <array>
 #include <functional>
 #include "glob.h"
+#include "util.h"
 
 using namespace std;
 
@@ -123,7 +124,7 @@ namespace D2 {
         real attenuation(Pnt &pnt) const;
 
         // Создание изображения "area.jpg" с полутоновым изображением области
-        void image(int size) const;
+        void image(Config &config) const;
     };
 }
 
