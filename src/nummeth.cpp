@@ -59,34 +59,16 @@ DynList splitting(List(2) inv, int order) {
     return splitting;
 }
 
-real quadrature_rec(function<real(real)> &func, List(2) inv, int req_order, int cur_order) {
-    if (cur_order >= req_order) {
-        return quad_formula(func, inv[0], inv[1]);
-    }
-    real mid = (inv[0] + inv[1]) / 2;
-    return quadrature_rec(func, {inv[0], mid}, req_order, cur_order + 1) +
-           quadrature_rec(func, {mid, inv[1]}, req_order, cur_order + 1);
-}
-
-real quadrature(function<real(real)> &func, List(2) inv, real accuracy) {
-    DynList attempts;
-    attempts.push_back(quad_formula(func, inv[0], inv[1]));
-    int iter = 0;
-
-    do {
-        iter += 1;
-        attempts.push_back(quadrature_rec(func, inv, iter));
-    } while (abs(attempts[iter] - attempts[iter - 1]) >= accuracy);
-
-    return attempts[iter];
-}
-
-real quadrature(function<real(real)> &func, List(2) inv, int order, QuadFormula formula) {
-    if (order < 1) order = 1;
-    DynList spltng = splitting(inv, order);
+real quadrature(function<real(real)> &func, DynList spltng, QuadFormula formula) {
     real quad = 0;
     for (int i = 1; i < spltng.size(); ++i) {
         quad += quad_formula(func, spltng.at(i - 1), spltng.at(i), formula);
     }
     return quad;
+}
+
+real quadrature(function<real(real)> &func, List(2) inv, int order, QuadFormula formula) {
+    if (order < 1) order = 1;
+    DynList spltng = splitting(inv, order);
+    return quadrature(func, spltng, formula);
 }

@@ -24,7 +24,9 @@
 Имея **частоту дискретизации ```NRHO``` и ```NPHI```** множество всех прямых ограничивается множеством прямых, для которых
 ```math
   \rho = a \cdot \frac{i}{N_\rho} \;,\; 
-  i \in [-N_\rho, N_\rho] \;\cap\; \mathbb{Z} \\
+  i \in [-N_\rho, N_\rho] \;\cap\; \mathbb{Z}
+```
+```math
   \phi = \pi \cdot \frac{j}{N_\phi} \;,\;
   j \in [0, N_\phi) \;\cap\; \mathbb{Z}
 ```

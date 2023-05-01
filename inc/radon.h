@@ -6,5 +6,8 @@
 #include "util.h"
 
 using namespace std;
+using namespace D2;
 
-DynMatr radon(D2::Area &prm, Config &config);
+DynMatr radon(Area &prm, Config &config);
+
+real backproj(Pnt &pnt, float rho, DynMatr &radon_tr, Config &config);

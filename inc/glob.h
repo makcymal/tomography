@@ -5,10 +5,9 @@
 #define real float
 
 #define PI 3.1415926535897932
+#define DPI 6.283185307179586
 
 #define CONFIG_FILE "config.env"
-#define GRID_FILE "grid.dat"
-#define BACKPROJ_FILE "backproj.dat"
 
 #define EPSILON std::numeric_limits<real>::epsilon()
 #define real_eq(lhs, rhs) (std::abs(lhs - rhs) < EPSILON)
