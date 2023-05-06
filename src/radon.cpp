@@ -1,15 +1,13 @@
-#include <iostream>
 #include <cmath>
+#include <functional>
 #include "radon.h"
 #include "nummeth.h"
 
 using namespace std;
 
-#define QUADORD 7
 
-
-DynMatr radon(D2::Area &area, Config &config) {
-    DynMatr radon_im(2 * config.n_rho + 1, vector<real>(config.n_phi, 0));
+Matrix radon(Area &area, Config &config) {
+    Matrix radon_im(2 * config.n_rho + 1, vector<real>(config.n_phi, 0));
 
     for (int rho_idx = -config.n_rho; rho_idx <= config.n_rho; ++rho_idx) {
         real rho = (real) rho_idx / config.n_rho;
@@ -19,19 +17,19 @@ DynMatr radon(D2::Area &area, Config &config) {
             real cs = cos(phi), sn = sin(phi);
 
             function<real(real)> func = [&area, rho, cs, sn](real prm) {
-                D2::Pnt pnt = {rho * cs - prm * sn, rho * sn + prm * cs};
-                return area.attenuation(pnt, false);
+                Pnt pnt = {rho * cs - prm * sn, rho * sn + prm * cs};
+                return area.attenuation(pnt, true);
             };
 
-            static DynList spltng = splitting({-1, 1}, QUADORD);
+            static Vector spltng = splitting({-1, 1}, 7);
             radon_im.at(rho_idx + config.n_rho).at(phi_idx) = quadrature(func, spltng);
         }
     }
     return radon_im;
 }
 
-DynMatr convolution(DynMatr &radon_im, Config &config) {
-    DynMatr conv(2 * config.n_rho + 1, vector<real>(config.n_phi, 0));
+Matrix convolution(Matrix &radon_im, Config &config) {
+    Matrix conv(2 * config.n_rho + 1, vector<real>(config.n_phi, 0));
 
     for (int rho = 0; rho < 2 * config.n_rho + 1; ++rho) {
         for (int phi = 0; phi < config.n_phi; ++phi) {
@@ -44,7 +42,7 @@ DynMatr convolution(DynMatr &radon_im, Config &config) {
     return conv;
 }
 
-real backprojection(Pnt &pnt, DynMatr &conv, Config &config) {
+real backprojection(Pnt &pnt, Matrix &conv, Config &config) {
     real sum = 0;
 
     for (int phi_idx = 0; phi_idx < config.n_phi; ++phi_idx) {
@@ -59,9 +57,9 @@ real backprojection(Pnt &pnt, DynMatr &conv, Config &config) {
     return (real) 2 * config.n_rho * sum / PI / config.n_phi;
 }
 
-DynMatr inv_radon(DynMatr &radon_im, Config &config) {
-    DynMatr conv = convolution(radon_im, config);
-    DynMatr area_obt(2 * config.n_y + 1, vector<real>(2 * config.n_x + 1, 0));
+Matrix inv_radon(Matrix &radon_im, Config &config) {
+    Matrix conv = convolution(radon_im, config);
+    Matrix area_obt(2 * config.n_y + 1, vector<real>(2 * config.n_x + 1, 0));
 
     for (int y_idx = -config.n_y; y_idx <= config.n_y; ++y_idx) {
         real y = (real) -y_idx / config.n_y;

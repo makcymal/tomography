@@ -12,8 +12,8 @@ enum class QuadFormula {
 
 real quad_formula(function<real(real)> &func, real lb, real rb, QuadFormula formula = QuadFormula::Simpson);
 
-DynList splitting(List(2) inv, int order);
+Vector splitting(Array(2) inv, int order);
 
-real quadrature(function<real(real)> &func, DynList spltng, QuadFormula formula = QuadFormula::Simpson);
+real quadrature(function<real(real)> &func, Vector spltng, QuadFormula formula = QuadFormula::Simpson);
 
-real quadrature(function<real(real)> &func, List(2) inv, int order = 5, QuadFormula formula = QuadFormula::Simpson);
+real quadrature(function<real(real)> &func, Array(2) inv, int order = 5, QuadFormula formula = QuadFormula::Simpson);

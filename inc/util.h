@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <list>
+#include <string>
 #include "glob.h"
 
 using namespace std;
@@ -18,9 +18,7 @@ public:
 
 // Решение квадратного уравнения - возвращает массив,
 // заполненный сначала его корнями в порядке убывания, затем значениями NOREAL
-DynList quadeq(real A, real B, real C);
+Vector quadeq(real A, real B, real C);
 
 
-void make_jpg(char const *filename, int height, int width, const void *data);
-
-void make_jpg(char const *filename, DynMatr &data);
+void make_jpg_dat(string &filename, Matrix &data);

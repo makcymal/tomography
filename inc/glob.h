@@ -12,10 +12,6 @@
 #define EPSILON std::numeric_limits<real>::epsilon()
 #define real_eq(lhs, rhs) (std::abs(lhs - rhs) < EPSILON)
 
-#define PINF std::numeric_limits<real>::infinity();
-#define MINF -std::numeric_limits<real>::infinity();
-
-#define List(len) std::array<real, len>
-#define Matr(row, col) std::array<std::array<real, col>, row>
-#define DynList std::vector<real>
-#define DynMatr std::vector<std::vector<real>>
+#define Array(len) std::array<real, len>
+#define Vector std::vector<real>
+#define Matrix std::vector<std::vector<real>>
