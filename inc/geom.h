@@ -121,10 +121,10 @@ namespace D2 {
         explicit Area(function<real(const Pnt &)> atten, vector<Ellipse> ellipse={}, vector<Polygon> polygon={});
 
         // Коэффиент ослабления внутри области с учетом внутренних областей
-        real attenuation(Pnt &pnt) const;
+        real attenuation(Pnt &pnt, bool intersections=false) const;
 
         // Создание изображения "area.jpg" с полутоновым изображением области
-        void image(Config &config) const;
+        void image(Config &config, bool intersections=false) const;
     };
 }
 

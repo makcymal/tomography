@@ -20,7 +20,7 @@ DynMatr radon(D2::Area &area, Config &config) {
 
             function<real(real)> func = [&area, rho, cs, sn](real prm) {
                 D2::Pnt pnt = {rho * cs - prm * sn, rho * sn + prm * cs};
-                return area.attenuation(pnt);
+                return area.attenuation(pnt, false);
             };
 
             static DynList spltng = splitting({-1, 1}, QUADORD);

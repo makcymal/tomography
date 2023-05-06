@@ -17,13 +17,13 @@ int main() {
     Config config = Config();
 
     auto area = area_head();
-    area.image(config);
+    area.image(config, true);
 
-    DynMatr radon_im = radon(area, config);
-    make_jpg("img/radon_im.jpg", radon_im);
-
-    DynMatr area_obt = inv_radon(radon_im, config);
-    make_jpg("img/area_obt.jpg", area_obt);
+//    DynMatr radon_im = radon(area, config);
+//    make_jpg("img/radon_im.jpg", radon_im);
+//
+//    DynMatr area_obt = inv_radon(radon_im, config);
+//    make_jpg("img/area_obt.jpg", area_obt);
 
     return 0;
 }

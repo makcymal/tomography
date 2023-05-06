@@ -182,39 +182,48 @@ namespace D2 {
               atten(std::move(atten)) {}
 
     // Коэффиент ослабления внутри области с учетом внутренних областей
-    real Area::attenuation(Pnt &pnt) const {
+    real Area::attenuation(Pnt &pnt, bool intersections) const {
         if (pnt.sqrad() > 1) {
             return 0;
         }
+        real result = atten(pnt);
         for (const auto &ellipse: ellipses) {
             if (ellipse.contains(pnt)) {
-                return ellipse.attenuation(pnt);
+                if (intersections) {
+                    result += ellipse.attenuation(pnt);
+                } else {
+                    return ellipse.attenuation(pnt);
+                }
             }
         }
         for (const auto &polygon: polygons) {
             if (polygon.contains(pnt)) {
-                return polygon.attenuation(pnt);
+                if (intersections) {
+                    result += polygon.attenuation(pnt);
+                } else {
+                    return polygon.attenuation(pnt);
+                }
             }
         }
-        return atten(pnt);
+        return result;
     }
 
     // Создание изображения "area.jpg" с полутоновым изображением области
-    void Area::image(Config &config) const {
+    void Area::image(Config &config, bool intersections) const {
         int height = 2 * config.n_y + 1, width = 2 * config.n_x + 1;
-        unsigned char pixels[height][width];
-        real dy = (real)2 / height, dx = (real)2 / width;
-        Pnt pnt = {(real)-1, (real)1};
+        DynMatr pixels(height, vector<real>(width));
+        real dy = (real) 2 / height, dx = (real) 2 / width;
+        Pnt pnt = {(real) -1, (real) 1};
 
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
-                pixels[y][x] = (unsigned char) attenuation(pnt);
+                pixels[y][x] = attenuation(pnt, intersections);
                 pnt.x += dx;
             }
             pnt.y -= dy;
             pnt.x = -1;
         }
-        make_jpg("img/area.jpg", height, width, pixels);
+        make_jpg("img/area.jpg", pixels);
     }
 }
 
