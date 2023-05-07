@@ -1,15 +1,17 @@
 #pragma once
 
-#include <functional>
-#include "glob.h"
-#include "geom.h"
-#include "util.h"
+#include "globals.h"
+#include "geometry.h"
 
 using namespace std;
-using namespace D2;
 
-DynMatr radon(Area &prm, Config &config);
 
-real backproj(const Pnt &pnt, float rho, DynMatr &radon_im, Config &config);
+Matrix radon(Area &area, Config &config);
 
-DynMatr inv_radon(DynMatr &radon_im, Config &config);
+Matrix radon_const(Area &area, Config &config);
+
+Matrix convolution(Matrix &radon_im, Config &config);
+
+real backprojection(Pnt &pnt, Matrix &conv, Config &config);
+
+Matrix inv_radon(Matrix &radon_im, Config &config);

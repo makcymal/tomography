@@ -1,6 +1,5 @@
-#include <iostream>
-#include "nummeth.h"
-#include "glob.h"
+#include "quadratures.h"
+#include "globals.h"
 
 using namespace std;
 
@@ -39,10 +38,10 @@ real quad_formula(function<real(real)> &func, real lb, real rb, QuadFormula form
 }
 
 
-DynList splitting(List(2) inv, int order) {
+Vector splitting(Array(2) inv, int order) {
     // сколько точек осталось отметить
     int rem_pts = (1 << order) + 1;
-    DynList splitting(rem_pts, 0);
+    Vector splitting(rem_pts, 0);
     splitting.front() = inv[0];
     splitting.back() = inv[1];
 
@@ -59,7 +58,7 @@ DynList splitting(List(2) inv, int order) {
     return splitting;
 }
 
-real quadrature(function<real(real)> &func, DynList spltng, QuadFormula formula) {
+real quadrature(function<real(real)> &func, Vector spltng, QuadFormula formula) {
     real quad = 0;
     for (int i = 1; i < spltng.size(); ++i) {
         quad += quad_formula(func, spltng.at(i - 1), spltng.at(i), formula);
@@ -67,8 +66,8 @@ real quadrature(function<real(real)> &func, DynList spltng, QuadFormula formula)
     return quad;
 }
 
-real quadrature(function<real(real)> &func, List(2) inv, int order, QuadFormula formula) {
+real quadrature(function<real(real)> &func, Array(2) inv, int order, QuadFormula formula) {
     if (order < 1) order = 1;
-    DynList spltng = splitting(inv, order);
+    Vector spltng = splitting(inv, order);
     return quadrature(func, spltng, formula);
 }
