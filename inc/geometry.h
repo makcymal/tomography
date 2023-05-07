@@ -30,18 +30,18 @@ class Ellipse {
     real sqa, sqb;
     // Косинусы и синусы угла поворота
     real rotcos, rotsin;
+public:
     // Лямбда, задающая значение коэффициента ослабления внутри эллипса
     function<real(const Pnt &)> atten;
-public:
+
     // Конструктор эллипса
     Ellipse(Pnt center, real a, real b, real rotation, function<real(const Pnt &)> atten);
-
 
     // Проверка на вхождение точки
     [[nodiscard]] bool contains(Pnt &pnt) const;
 
-    // Коэффиент ослабления внутри эллипса
-    real attenuation(Pnt &pnt) const;
+    // Пересечения с прямой y = y_0
+    [[nodiscard]] Vector collide(real y_0) const;
 };
 
 
@@ -49,17 +49,15 @@ public:
 class Polygon {
     // Точки вершин, в порядке по часовой стрелке
     array<Pnt, 3> vertices;
+public:
     // Лямбда, задающая значение коэффициента ослабления внутри треугольника
     function<real(const Pnt &)> atten;
-public:
+
     // Конструктор треугольника
     Polygon(array<Pnt, 3> vertices, function<real(const Pnt &)> atten);
 
     // Проверка на вхождение точки
     [[nodiscard]] bool contains(Pnt &pnt) const;
-
-    // Коэффиент ослабления внутри треугольника
-    real attenuation(Pnt &pnt) const;
 };
 
 

@@ -31,9 +31,27 @@ bool Ellipse::contains(Pnt &pnt) const {
     return sqb * xi * xi + sqa * nu * nu <= sqa * sqb;
 }
 
-// Коэффиент ослабления внутри эллипса
-real Ellipse::attenuation(Pnt &pnt) const {
-    return atten(pnt);
+// Пересечения с прямой y = y_0
+Vector Ellipse::collide(real y_0) const {
+    Vector collisions;
+
+    real
+            dx, dy = y_0 - center.y,
+            D = rotcos * rotcos / sqa + rotsin * rotsin / sqb - dy * dy / sqa / sqb;
+
+    if (D < 0) return collisions;
+    if (real_eq(D, 0)) {
+        collisions.push_back(-((1 / sqa - 1 / sqb) * rotsin * rotcos * dy) /
+                             (rotcos * rotcos / sqa + rotsin * rotsin / sqb));
+        return collisions;
+    }
+
+    D = sqrt(D);
+    collisions.push_back((-2 * (1 / sqa - 1 / sqb) * rotsin * rotcos * dy - D) / 2 /
+                             (rotcos * rotcos / sqa + rotsin * rotsin / sqb));
+    collisions.push_back((-2 * (1 / sqa - 1 / sqb) * rotsin * rotcos * dy + D) / 2 /
+                             (rotcos * rotcos / sqa + rotsin * rotsin / sqb));
+    return collisions;
 }
 
 
@@ -60,11 +78,6 @@ bool Polygon::contains(Pnt &pnt) const {
     return (v10.x * v1p.y - v1p.x * v10.y) * (v12.x * v1p.y - v1p.x * v12.y) <= 0;
 }
 
-// Коэффиент ослабления внутри треугольника
-real Polygon::attenuation(Pnt &pnt) const {
-    return atten(pnt);
-}
-
 
 // Конструктор области
 Area::Area(function<real(const Pnt &)> atten, vector<Ellipse> ellipses, vector<Polygon> polygons)
@@ -81,18 +94,18 @@ real Area::attenuation(Pnt &pnt, bool intersections) const {
     for (const auto &ellipse: ellipses) {
         if (ellipse.contains(pnt)) {
             if (intersections) {
-                result += ellipse.attenuation(pnt);
+                result += ellipse.atten(pnt);
             } else {
-                return ellipse.attenuation(pnt);
+                return ellipse.atten(pnt);
             }
         }
     }
     for (const auto &polygon: polygons) {
         if (polygon.contains(pnt)) {
             if (intersections) {
-                result += polygon.attenuation(pnt);
+                result += polygon.atten(pnt);
             } else {
-                return polygon.attenuation(pnt);
+                return polygon.atten(pnt);
             }
         }
     }
