@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "glob.h"
+#include "globals.h"
 
 using namespace std;
 

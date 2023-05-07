@@ -1,13 +1,14 @@
 #include <cmath>
 #include <functional>
 #include "radon.h"
-#include "nummeth.h"
+#include "quadratures.h"
 
 using namespace std;
 
 
 Matrix radon(Area &area, Config &config) {
     Matrix radon_im(2 * config.n_rho + 1, vector<real>(config.n_phi, 0));
+    bool intersections = config.intersections;
 
     for (int rho_idx = -config.n_rho; rho_idx <= config.n_rho; ++rho_idx) {
         real rho = (real) rho_idx / config.n_rho;
@@ -16,13 +17,26 @@ Matrix radon(Area &area, Config &config) {
             real phi = PI * phi_idx / config.n_phi;
             real cs = cos(phi), sn = sin(phi);
 
-            function<real(real)> func = [&area, rho, cs, sn](real prm) {
+            function<real(real)> func = [&area, intersections, rho, cs, sn](real prm) {
                 Pnt pnt = {rho * cs - prm * sn, rho * sn + prm * cs};
-                return area.attenuation(pnt, true);
+                return area.attenuation(pnt, intersections);
             };
 
-            static Vector spltng = splitting({-1, 1}, 7);
-            radon_im.at(rho_idx + config.n_rho).at(phi_idx) = quadrature(func, spltng);
+            static Vector spltng = splitting({-1, 1}, 12);
+            radon_im.at(rho_idx + config.n_rho).at(phi_idx) =
+                    quadrature(func, spltng, QuadFormula::Trapeze);
+        }
+    }
+    return radon_im;
+}
+
+Matrix radon_const(Area &area, Config &config) {
+    Matrix radon_im(2 * config.n_rho + 1, vector<real>(config.n_phi, 0));
+    for (int rho_idx = -config.n_rho; rho_idx <= config.n_rho; ++rho_idx) {
+        real rho = (real) rho_idx / config.n_rho;
+        real val = 2 * sqrt(1 - rho * rho);
+        for (int phi_idx = 0; phi_idx < config.n_phi; ++phi_idx) {
+            radon_im.at(rho_idx + config.n_rho).at(phi_idx) = val;
         }
     }
     return radon_im;

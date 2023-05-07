@@ -1,7 +1,7 @@
 #pragma once
 
-#include "glob.h"
-#include "geom.h"
+#include "globals.h"
+#include "geometry.h"
 
 using namespace std;
 

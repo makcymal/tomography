@@ -1,5 +1,5 @@
-#include "nummeth.h"
-#include "glob.h"
+#include "quadratures.h"
+#include "globals.h"
 
 using namespace std;
 

@@ -1,8 +1,9 @@
+#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cassert>
-#include "util.h"
-#include "glob.h"
+#include "utilities.h"
+#include "globals.h"
 
 using namespace std;
 
@@ -26,6 +27,7 @@ Config::Config() {
             else if (key == "NPHI") n_phi = value;
             else if (key == "NX") n_x = value;
             else if (key == "NY") n_y = value;
+            else if (key == "INTERSECTIONS") intersections = (bool)value;
         }
     }
     config_buff.close();
@@ -53,6 +55,29 @@ Vector quadeq(real A, real B, real C) {
         swap(roots[0], roots[1]);
     }
     return roots;
+}
+
+
+real standard_deviation(string &filename, Matrix &exact, Matrix &model) {
+    filename = string("dat/") + filename + string(".dat");
+    real numerator = 0, denominator = 0;
+
+    for (int y = 0; y < exact.size(); ++y) {
+        for (int x = 0; x < exact[0].size(); ++x) {
+            numerator += pow(exact.at(y).at(x) - model.at(y).at(x), 2);
+//            cout << numerator << ' ';
+            denominator += pow(exact.at(y).at(x), 2);
+        }
+//        cout << '\n';
+    }
+    real sd = sqrt(numerator / denominator);
+
+    ofstream dat;
+    dat.open(filename.data());
+    dat << sd;
+    dat.close();
+
+    return sd;
 }
 
 

@@ -1,7 +1,7 @@
 #include <cmath>
 #include <fstream>
 #include <cstring>
-#include "geom.h"
+#include "geometry.h"
 
 using namespace std;
 
@@ -99,7 +99,7 @@ real Area::attenuation(Pnt &pnt, bool intersections) const {
     return result;
 }
 
-Matrix Area::image(Config &config, bool intersections) const {
+Matrix Area::image(Config &config) const {
     int height = 2 * config.n_y + 1, width = 2 * config.n_x + 1;
     Matrix image(height, vector<real>(width));
     real dy = (real) 2 / height, dx = (real) 2 / width;
@@ -107,7 +107,7 @@ Matrix Area::image(Config &config, bool intersections) const {
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            real value = attenuation(pnt, intersections);
+            real value = attenuation(pnt, config.intersections);
             image[y][x] = value;
             pnt.x += dx;
         }

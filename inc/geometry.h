@@ -1,8 +1,8 @@
 #pragma once
 
 #include <functional>
-#include "glob.h"
-#include "util.h"
+#include "globals.h"
+#include "utilities.h"
 
 using namespace std;
 
@@ -76,9 +76,9 @@ public:
     explicit Area(function<real(const Pnt &)> atten, vector<Ellipse> ellipse = {}, vector<Polygon> polygon = {});
 
     // Коэффиент ослабления внутри области с учетом внутренних областей
-    real attenuation(Pnt &pnt, bool intersections = false) const;
+    real attenuation(Pnt &pnt, bool intersections) const;
 
-    Matrix image(Config &config, bool intersections = false) const;
+    Matrix image(Config &config) const;
 };
 
 // Функции распределения коэффициента ослабления
